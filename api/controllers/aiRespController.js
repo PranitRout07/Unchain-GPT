@@ -4,80 +4,26 @@ import { query } from "express";
 import { GetLastChatID } from "../utils/getLastChatID.js";
 
 
-export const AiRespController = async (req,res) =>{
-    
-    const chat = req.body.message;
-    try{
-        const llm = new Ollama({
-            model: "llama3.1", // Default value
-            temperature: 0,
-            maxRetries: 2,
-            baseUrl: "http://localhost:11434",
-        });
-        const completion = await llm.invoke(chat);
-        completion;
-
-        // console.log(completion)
-        const query = "insert into chatandresp(`chat`,`resp`) values (?)"
-        const values = [chat,completion]
-
-       db.query(query,[values],(err,data)=>{
-            if(err){
-                return res.json("error while adding to database",EvalError)
-            }
-
-            res.status(200).send(`${JSON.stringify(completion)}`);
-        })
-
-        }catch(error){
-            res.send("Error while invoking",error)
-        }
-    
-}
-
-
-export const GetChatHistory = async (req,res)=>{
-    const query = "select `chat`,`resp` from chatandresp"
-    
-    const id =await GetLastChatID();
-    console.log(id)
-    db.query(query,(err,data)=>{
-        if(err){
-            console.log(err)
-        }
-        res.status(200).json(data)
-    })
-}
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-export const ReceiveChat = async (req,res) =>{
+export const GenerateAiResp = async (req,res) =>{
     try{
         const chat = req.body?.message;
         //add chat to database
+        // console.log(chat,"newchat")
 
         const add_chat_query = "insert into chats(`chat`) values (?)"
         
         db.query(add_chat_query,[chat],(err,data)=>{
             if(err){
+                
                 res.json(err)
             }
         })
 
         const chat_id =await GetLastChatID();
+        console.log(chat_id,"chat_id")
 
         const llm = new Ollama({
             model: "llama3.1", 
@@ -93,6 +39,7 @@ export const ReceiveChat = async (req,res) =>{
 
     db.query(add_resp_query,[values],(err,data)=>{
         if(err){
+            console.log(err)
             res.json(err);
         }
         console.log("GENERATE DATA",data[0])
@@ -109,12 +56,15 @@ export const ReceiveChat = async (req,res) =>{
 
 //
 export const GetLastChat = async (req,res)=>{
-    const query = "select `chat` from chats where id = ?"
-    db.query(query,chat_id,(err,data)=>{
+    // const chat_id =await GetLastChatID();
+    const query = "select `chat` from chats"
+    db.query(query,(err,data)=>{
         if(err){
-            res.send("Error while retrieving messages",err)
+            // console.log("error",err)
+            res.json("Error while retrieving messages",err)
         }
-        res.status(200).json(data[0]);
+        // console.log(JSON.stringify(data))
+        res.status(200).json(data);
     })
 
 }
@@ -123,12 +73,14 @@ export const GetLastChat = async (req,res)=>{
 //
 
 export const GetLastResp = async (req,res)=>{
-    const chat_id =await GetLastChatID();
-    const query = "select `resp` from resps where `chat_id`= ? "
-    db.query(query,[chat_id],(err,data)=>{
+    // const chat_id =await GetLastChatID();
+    const query = "select `resp` from resps"
+    db.query(query,(err,data)=>{
         if(err){
+            
             res.json(err);
         }
-        res.status(200).json(data[0])
+        // console.log(data)
+        res.status(200).json(data)
     })
 }

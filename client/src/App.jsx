@@ -5,13 +5,23 @@ import SideBar from './components/SideBar'
 import Markdown from 'react-markdown'
 import close from '/close.svg'
 import plus from '/plus.svg'
+
+
 function App() {
   const [count, setCount] = useState(0)
 
   const [hideSideBar,setHideSideBar] = useState(false)
 
-  const [getChat,setGetChat] = useState('')
-  const [getResp,setGetResp] = useState('')
+
+  const [isCurChat,setIsCurChat] = useState(false)
+  const [isResp,setIsResp] = useState(false)
+  const [storeChat,setStoreChat] = useState([])
+  const [storeResp,setStoreResp] = useState([])
+
+  const [store,setStore] = useState({
+    chat:[],
+    resp:[]
+  })
 
   const [curChat,setCurChat] = useState('')
   const [response,setResponse] = useState('')
@@ -22,48 +32,38 @@ function App() {
     }
   ]) 
 
-
+  useEffect(()=>{
+    const storeChat = async ()=>{
+      const res = await axios.get("/api/chat")
+      console.log(res)
+      setStoreChat(res.data)
+    }
+    storeChat();
+    setIsCurChat(false)
+  },[isCurChat])
 
   useEffect(()=>{
-    const GetChatHistory = async ()=>{
-      const resp = await axios.get("/api/history")
-      console.log(resp)
-      setChatAndResp(resp.data)
-      // setChatAndResp(()=>{
-      //   console.log(resp.data)
-      //   return [...chatAndResp,{chat:resp.data?.chat,resp:resp.data?.resp}]
-      // })
+    const storeResp = async()=>{
+      const res = await axios.get("/api/resp")
+      setStoreResp(res.data)
+      setIsResp(false)
     }
-    GetChatHistory();
-  },[response])
+    storeResp()
+  },[isResp])
 
-  const sendChat  = async (e)=>{
+
+
+  // console.log(storeChat,storeResp)
+
+
+
+
+  const sendChat = async(e) =>{
     e.preventDefault();
-    const resp = await axios.post("/api/airesp",{"message":curChat})
+    setIsCurChat(true);
+    const resp = await axios.post("/api/generate",{"message":curChat})
+    setIsResp(true)
     setResponse(resp.data)
-    //setchat 
-    // console.log(curChat);
-    // setChatAndResp(()=>{
-
-    //   const newChat = curChat;
-    //   setCurChat('')
-    //   console.log(newChat)
-     
-    //   console.log(resp.data)
-    //   return [...chatAndResp,{
-    //     chat:newChat,
-    //     aiResp: resp.data
-    //   }]
-    // })
-
-    // setChatAndResp(()=>{
-    //   console.log(resp.data)
-    //   return [...chatAndResp,{chat:curChat,resp:resp.data}]
-    // })
-    setCurChat('')
-    //axios response
-    
-
   }
 
 
@@ -76,7 +76,11 @@ const handleNewSession = async (e)=>{
   const handleOnClick = (e) =>{
     e.preventDefault();
     setHideSideBar(!hideSideBar)
-    
+  
+  
+
+
+  
   }
   return (
     <div className='bg-transparent overflow-y-hidden w-full h-screen flex'>
@@ -163,32 +167,28 @@ const handleNewSession = async (e)=>{
       <div className='w-full h-[77vh] overflow-y-scroll'>
 
 
-
-
-
-
-
-
-    {chatAndResp.length>=1 && chatAndResp.slice(0).map((val,index)=>{
-      return (
-        
-        <div key={index}>
+      {
+        storeChat.length>0 && storeChat.map((chat,index)=>{
+          return (
+           
+            <div key={index}>
             <div className='flex justify-center w-full pt-8 pb-8 overflow-x-hidden'>
-        <p className='w-[56%] overflow-x-hidden text-white text-[18px] p-5 rounded-3xl bg-[#303030]' > {val?.chat}
+        <p className='w-[56%] overflow-x-hidden text-white text-[18px] p-5 rounded-3xl bg-[#303030]' > {storeChat[index].chat}
         </p>
       </div>
-
-
-      <div className='flex justify-center w-full pt-8 pb-8 overflow-x-hidden'>
-        <Markdown className='w-[56%] overflow-x-hidden text-white text-[18px] bg-transparent'>{val?.resp}
-        </Markdown>
-      </div>
+  {storeResp.length>index?<div className='flex justify-center w-full pt-8 pb-8 overflow-x-hidden'>
+    <Markdown className='w-[56%] overflow-x-hidden text-white text-[18px] bg-transparent'>
+      {storeResp[index].resp}
+    </Markdown>
+  </div>:<div className='flex justify-center w-full pt-8 pb-8 overflow-x-hidden'>
+            <p className='text-white text-[16px]'>Loading...</p>
+          </div>}
         </div>
-    
-      )
-  }) 
-  }
 
+
+          )
+        })
+      }
 
       </div>
 
