@@ -1,54 +1,45 @@
-import { useState } from "react"
+import { useEffect,useState } from "react"
+import { getAllSessions, updateSessionId} from '../context&store/sessionSlice'
+import { useDispatch, useSelector } from 'react-redux'
 
 export default function SideBar(){
-
-    // const [title,setTitle] = useState([])
-    const title = [
-        "title-01sccdsdvsdsv",
-        "title-02vdsdvsvdds",
-        "title-03dvsdvdvs",
-        "title-04dsvvdsdsd",
-        "title-05svdssvd",
-        "title-06vdsvds",
-        "title-07",
-        "title-08",
-        "title-09dvsdv",
-        "title-10dvsdvsvdsv",
-        "title-11",
-        "title-12",
-        "title-13dvdvsv",
-        "title-14dvsdsssss",
-        "title-15dvvdsds",
-        "title-16dvsvds",
-        "title-17dvvsd",
-        "title-18dvsdvs",
-        "title-19dvsdsvds",
-        "title-20vdsd",
-        "title-21dvsdvsvds",
-        "title-22sasdavsa",
-        "title-23wmlkemlwm",
-        "title-24cq..;w.'v",
-        "title-25,csl;l;",
-        "title-26llcml",
-        "title-27",
-        "title-28kcmsalsd",
-        "title-29maslcm;s",
-        "title-30cs,a;l",
-    ]
-
+    const dispatch = useDispatch();
+    
+    const title = useSelector((state)=>state.allSessions)
+    
+    const session = useSelector((state)=>state.session)
+    const loading = useSelector((state)=>state.loading)
+    useEffect(()=>{
+      const GroupBySession  = ()=>{
+        dispatch(getAllSessions());
+        
+      }
+      GroupBySession();
+    },[])
+    const handleSession = (e) =>{
+        e.preventDefault();
+        console.log(e.target.value,"curvalue")
+        dispatch(updateSessionId(e.target.value))
+    }
+    
     return (
-        <div className="w-full h-[76vh] overflow-y-auto overflow-x-hidden flex-col space-y-3 pl-8">
+        loading!==true?<div className="w-full h-[76vh] overflow-y-auto overflow-x-hidden flex-col space-y-3 pl-8">
         
             {
                 title.map((val,index)=>{
                     return (
                         <div className="flex justify-start" key={`${Date.now()}+${index}`}>
-                            <span className="text-white text-[15px]">{val}</span>
+                            <button className="text-white text-[15px] bg-transparent hover:bg-[#363636]" value={val.session_id} onClick={handleSession}>{val.session_id}</button>
                         </div>
                     )
                 })
             }
 
-        </div>
+        </div>:<div className="w-full h-[76vh] overflow-y-auto overflow-x-hidden flex-col space-y-3 pl-8">
+        
+        <div className="flex justify-start" >
+                        <span className="text-white text-[15px] bg-transparent hover:bg-[#363636]" >Loading...</span>
+                    </div>
+    </div>
     )
 }

@@ -5,51 +5,45 @@ import SideBar from './components/SideBar'
 import Markdown from 'react-markdown'
 import close from '/close.svg'
 import plus from '/plus.svg'
-
+import { getAllSessions,createSession } from './context&store/sessionSlice'
+import { useDispatch, useSelector } from 'react-redux'
 
 function App() {
   const [count, setCount] = useState(0)
 
   const [hideSideBar,setHideSideBar] = useState(false)
 
+  const dispatch = useDispatch()
 
   const [isCurChat,setIsCurChat] = useState(false)
   const [isResp,setIsResp] = useState(false)
   const [storeChat,setStoreChat] = useState([])
   const [storeResp,setStoreResp] = useState([])
+  // const [session,setSession] = useState('3afff817-ff92-4373-be9d-dbbad9cf2e38')
 
-  const [store,setStore] = useState({
-    chat:[],
-    resp:[]
-  })
-
+  const session = useSelector((state)=>state.session)
   const [curChat,setCurChat] = useState('')
   const [response,setResponse] = useState('')
-  const [chatAndResp,setChatAndResp] = useState([
-    {
-      chat:'',
-      resp:''
-    }
-  ]) 
+
 
   useEffect(()=>{
     const storeChat = async ()=>{
-      const res = await axios.get("/api/chat")
+      const res = await axios.get(`/api/chat/${session}`)
       console.log(res)
       setStoreChat(res.data)
     }
     storeChat();
     setIsCurChat(false)
-  },[isCurChat])
+  },[isCurChat,session])
 
   useEffect(()=>{
     const storeResp = async()=>{
-      const res = await axios.get("/api/resp")
+      const res = await axios.get(`/api/resp/${session}`)
       setStoreResp(res.data)
       setIsResp(false)
     }
     storeResp()
-  },[isResp])
+  },[isResp,session])
 
 
 
@@ -61,16 +55,20 @@ function App() {
   const sendChat = async(e) =>{
     e.preventDefault();
     setIsCurChat(true);
-    const resp = await axios.post("/api/generate",{"message":curChat})
+    const resp = await axios.post("/api/generate",{"message":curChat,"session_id":session})
     setIsResp(true)
     setResponse(resp.data)
   }
 
-
+const curSessionId = useSelector((state)=>state.session)
 const handleNewSession = async (e)=>{
   e.preventDefault();
   //axios req will be send to create a new session and store the chats and responses using this session.
-
+  // const res = await axios.post("/api/newsession")
+  dispatch(createSession());
+  
+  // setSession(curSessionId);
+  
 }
 
   const handleOnClick = (e) =>{
@@ -78,12 +76,13 @@ const handleNewSession = async (e)=>{
     setHideSideBar(!hideSideBar)
   
   
-
+//generate a new session on click
+//in that moment other functions are also affected like each get function will now get the data from the new session new session is send through the body.
 
   
   }
   return (
-    <div className='bg-transparent overflow-y-hidden w-full h-screen flex'>
+    <div className='bg-transparent overflow-y-hidden w-full h-screen flex '>
       
 
     {/* sidebar (it can be hidden)*/}
