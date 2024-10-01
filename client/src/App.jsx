@@ -5,7 +5,7 @@ import SideBar from './components/SideBar'
 import Markdown from 'react-markdown'
 import close from '/close.svg'
 import plus from '/plus.svg'
-import { getAllSessions,createSession } from './context&store/sessionSlice'
+import { createSession } from './context&store/sessionSlice'
 import { useDispatch, useSelector } from 'react-redux'
 
 function App() {
@@ -121,7 +121,7 @@ const handleNewSession = async (e)=>{
 
       <div className='h-full overflow-y-auto w-full overflow-x-hidden'>
       
-        <SideBar/>
+        <SideBar isChat={isCurChat}/>
       </div>
 
 

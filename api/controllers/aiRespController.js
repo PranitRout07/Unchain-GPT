@@ -97,12 +97,63 @@ export const GenerateNewSession = async (req,res)=>{
 }
 
 export const GroupBySession = async (req,res)=>{
-    const query = "SELECT `session_id`, DATE(MAX(`create_time`)) AS date FROM chats GROUP BY `session_id` ORDER BY MAX(`create_time`) DESC"
+
+        const query = "SELECT `session_id`, DATE(MAX(`create_time`)) AS date FROM chats WHERE `create_time` BETWEEN CURDATE() - INTERVAL - 1 DAY INTERVAL 1 SECOND AND CURDATE() - INTERVAL 8 DAY GROUP BY `session_id` ORDER BY MAX(`create_time`) DESC"
     db.query(query,(err,data)=>{
         if(err){
             console.log(err,"error while grouping by sessions")
         }
         console.log("data after group by:-",data)
+        res.status(200).json(data)
+    })
+}
+
+export const GroupSessionsByToday = async(req,res)=>{
+    // current day 12 A.M. to 11.59 P.M.
+
+    const query = "SELECT `session_id`, DATE(MAX(`create_time`)) AS date FROM chats WHERE `create_time` BETWEEN CURDATE() AND CURDATE() + INTERVAL 1 DAY - INTERVAL 1 SECOND GROUP BY `session_id` ORDER BY MAX(`create_time`) DESC"
+
+    db.query(query,(err,data)=>{
+        if(err){
+            console.log(err,"error while grouping by sessions")
+        }
+        // console.log("data after group by:-",data)
+        res.status(200).json(data)
+    })
+
+}
+
+export const GroupSessionsByYesterday = async(req,res)=>{
+    const query = "SELECT c1.`session_id`, DATE(MAX(c1.`create_time`)) AS date FROM chats c1 LEFT JOIN chats c2 ON c1.`session_id` = c2.`session_id` AND c2.`create_time` >= CURDATE() WHERE c1.`create_time` BETWEEN CURDATE() - INTERVAL 1 DAY AND CURDATE() - INTERVAL 1 SECOND AND c2.`session_id` IS NULL GROUP BY c1.`session_id` ORDER BY MAX(c1.`create_time`) DESC"
+
+    db.query(query,(err,data)=>{
+        if(err){
+            console.log(err,"error while grouping yesterday sessions")
+        }
+     
+        res.status(200).json(data)
+    })
+}
+
+export const GroupSessionsByLastSevenDays = async(req,res)=>{
+        const query = "SELECT c1.`session_id`, DATE(MAX(c1.`create_time`)) AS date FROM chats c1 LEFT JOIN chats c2 ON c1.`session_id` = c2.`session_id` AND c2.`create_time` >= CURDATE() WHERE c1.`create_time` BETWEEN CURDATE() - INTERVAL 8 DAY AND CURDATE() - INTERVAL 1 DAY - INTERVAL 1 SECOND AND c2.`session_id` IS NULL GROUP BY c1.`session_id` ORDER BY MAX(c1.`create_time`) DESC"
+
+        db.query(query,(err,data)=>{
+            if(err){
+                console.log(err,"error while grouping last 7 days sessions")
+            }
+            res.status(200).json(data)
+        })
+}
+
+export const GroupRestOfTheSessions= async(req,res)=>{
+    // const query = "SELECT `session_id`, DATE(MAX(`create_time`)) AS date FROM chats WHERE `create_time` BETWEEN DATE('2024-09-01') AND CURDATE() - INTERVAL 8 DAY - INTERVAL 1 SECOND GROUP BY `session_id` ORDER BY MAX(`create_time`) DESC"
+    const query = "SELECT c1.`session_id`, DATE(MAX(c1.`create_time`)) AS date FROM chats c1 LEFT JOIN chats c2 ON c1.`session_id` = c2.`session_id` AND c2.`create_time` >= CURDATE() WHERE c1.`create_time` BETWEEN DATE('2024-09-01') AND CURDATE() - INTERVAL 8 DAY - INTERVAL 1 SECOND AND c2.`session_id` IS NULL GROUP BY c1.`session_id` ORDER BY MAX(c1.`create_time`) DESC"
+
+    db.query(query,(err,data)=>{
+        if(err){
+            console.log(err,"error while grouping rest of the sessions")
+        }
         res.status(200).json(data)
     })
 }

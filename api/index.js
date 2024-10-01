@@ -1,7 +1,7 @@
 import express from "express"
 
 import { db } from "./db.js";
-import { GenerateAiResp, GenerateNewSession, GetLastChat, GetLastResp, GroupBySession} from "./controllers/aiRespController.js";
+import { GenerateAiResp, GenerateNewSession, GetLastChat, GetLastResp, GroupBySession, GroupRestOfTheSessions, GroupSessionsByLastSevenDays, GroupSessionsByToday, GroupSessionsByYesterday} from "./controllers/aiRespController.js";
 db.connect(function(err) {
   if (err) throw err;
   console.log("Connected to db!");
@@ -18,6 +18,11 @@ app.post("/api/generate",GenerateAiResp)
 
 
 app.get("/api/sessions",GroupBySession)
+
+app.get("/api/sessions/today",GroupSessionsByToday)
+app.get("/api/sessions/yesterday",GroupSessionsByYesterday)
+app.get("/api/sessions/oneweek",GroupSessionsByLastSevenDays)
+app.get("/api/sessions/rest",GroupRestOfTheSessions)
 
 
 app.listen(4000,()=>{
