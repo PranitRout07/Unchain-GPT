@@ -89,6 +89,18 @@ export const GetLastResp = async (req,res)=>{
     })
 }
 
+export const GenerateSessionTitle = async (req,res)=>{
+    const fetchFirstChatOfSessionQuery = "select `chat`,`session_id`,DATE(MIN('create_time')) AS date from chats ORDER BY MIN(`create_time`)"
+    let resp;
+    db.query(fetchFirstChatOfSessionQuery,(err,data)=>{
+        if(err){
+            console.log(err)
+        }
+        resp = data;
+        console.log(data)
+    })
+    
+}
 
 
 export const GenerateNewSession = async (req,res)=>{

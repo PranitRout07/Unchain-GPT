@@ -36,7 +36,7 @@ export default function SideBar({isChat}){
         loading!==true?<div className="w-full h-[76vh] overflow-y-auto overflow-x-hidden flex-col space-y-3 pl-8">
            
            {/* today */}
-            <div className="w-full h-auto overflow-y-auto overflow-x-hidden flex-col space-y-3"> 
+            {todaySessions.length>0?<div className="w-full h-auto overflow-y-auto overflow-x-hidden flex-col space-y-3"> 
                 <div className="text-xl font-semibold text-white pt-1 pb-1 ">
                     Today
                 </div>
@@ -51,9 +51,9 @@ export default function SideBar({isChat}){
                     })
                 }
                 </div>
-            </div>
+            </div>:""}
             {/* yesterday */}
-            <div className="w-full h-auto overflow-y-auto overflow-x-hidden flex-col space-y-3">
+            {yesterdaySessions.length>0?<div className="w-full h-auto overflow-y-auto overflow-x-hidden flex-col space-y-3">
 
             <div className="text-xl font-semibold text-white pt-1 pb-1">
                     Yesterday
@@ -69,10 +69,10 @@ export default function SideBar({isChat}){
                     })
                 }
                 </div>
-            </div>
+            </div>:""}
 
             {/* last 7 days */}
-            <div className="w-full h-auto overflow-y-auto overflow-x-hidden flex-col space-y-3">
+           {oneWeekSessions.length>0? <div className="w-full h-auto overflow-y-auto overflow-x-hidden flex-col space-y-3">
             <div className="text-xl font-semibold text-white pt-1 pb-1">
                     Last 7 Days
                 </div>
@@ -87,9 +87,9 @@ export default function SideBar({isChat}){
                     })
             }
             </div>
-            </div>
+            </div>:""}
             {/* Rest */}
-            <div className="w-full h-auto overflow-y-auto overflow-x-hidden flex-col space-y-3">
+            { restSessions.length>0?<div className="w-full h-auto overflow-y-auto overflow-x-hidden flex-col space-y-3">
             <div className="text-xl font-semibold text-white pt-1 pb-1">
                     Rest
                 </div>
@@ -104,7 +104,7 @@ export default function SideBar({isChat}){
                 })
             }
             </div>
-            </div>
+            </div>:""}
 
         </div>:<div className="w-full h-[76vh] overflow-y-auto overflow-x-hidden flex-col space-y-3 pl-8">
         
